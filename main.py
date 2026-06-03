@@ -43,13 +43,13 @@ async def create_youtrack_issue(summary: str, description: str) -> str:
     async with httpx.AsyncClient() as client:
         resp = await client.post(create_issue_url, json=payload, headers={"Authorization": f"Bearer {os.getenv('YOUTRACK_TOKEN')}"})
 
-        if resp.status_code != 200:
-            return f"Failed to create issue: {resp.status_code} - {resp.text}"
-        else:
+        if resp.is_success:
             data = resp.json()
             issue_id = data['idReadable']
             issue_url = f"{os.getenv('YOUTRACK_URL')}/issues/{issue_id}"
             return f"Created new issue: [{issue_id}] - {issue_url}"
+        else:
+            return f"Failed to create issue: {resp.status_code} - {resp.text}"
 
 
 if __name__ == "__main__":
