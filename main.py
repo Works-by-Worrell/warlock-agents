@@ -15,12 +15,29 @@ def get_public_profile() -> str:
 
 @mcp.resource("profile://private")
 def get_private_profile() -> str:
-    """Safely retrieves local personal alignment constraints from the gitignored boundary."""
+    """Safely retrieves local personal alignment constraints and distilled identity lore from the gitignored boundary."""
     private_path = os.path.join(".warlock", "alignment.md")
+    lore_path = os.path.join(".warlock", "IDENTITY_DISTILLED.md")
+
+    content = []
     if os.path.exists(private_path):
         with open(private_path) as f:
-            return f.read()
-    return "No private alignment constraints configured locally."
+            content.append(f.read())
+
+    if os.path.exists(lore_path):
+        with open(lore_path) as f:
+            content.append("\n--- IDENTITY MANIFESTO ---\n")
+            content.append(f.read())
+
+    return "\n".join(content) if content else "No private alignment constraints configured locally."
+
+
+@mcp.resource("profile://combined")
+def get_combined_profile() -> str:
+    """Merges public and private layers into a unified context for Warlock-Agents."""
+    public = get_public_profile()
+    private = get_private_profile()
+    return f"{public}\n\n--- PRIVATE ALIGNMENT & LORE ---\n\n{private}"
 
 
 @mcp.tool()
