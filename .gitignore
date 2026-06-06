@@ -1,5 +1,8 @@
-# Local Profiles: Private alignment filters and personalization gate
-.private
+# Ignore all contents of the .private directory
+.private/*
+
+# Do not ignore the README.md file
+!.private/README.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
