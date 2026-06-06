@@ -1,15 +1,12 @@
 import os
 
-from core import mcp
-from core import profile_uri
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+from .core import mcp, profile_uri, PROJECT_ROOT
 
 
-@mcp.resource(profile_uri('public'))
+@mcp.resource(profile_uri("public"))
 def get_public_profile(username: str) -> str:
     """Returns the public technical profile (ME.md)"""
-    public_path = os.path.join(BASE_DIR, ".public", f"{username}.md")
+    public_path = os.path.join(PROJECT_ROOT, ".public", f"{username}.md")
 
     if not os.path.exists(public_path):
         return f"Error: Public profile {username} not found."
@@ -18,14 +15,14 @@ def get_public_profile(username: str) -> str:
         return f.read()
 
 
-@mcp.resource(profile_uri('private'))
+@mcp.resource(profile_uri("private"))
 def get_private_profile(username: str) -> str:
     """
     Safely returns local personal alignment constraints and distilled identity
     lore from the gitignored boundary.
     """
-    private_path = os.path.join(BASE_DIR, ".private", f"{username}_alignment.md")
-    lore_path = os.path.join(".private", f"{username}_lore.md")
+    private_path = os.path.join(PROJECT_ROOT, ".private", f"{username}_profile.md")
+    lore_path = os.path.join(PROJECT_ROOT, ".private", f"{username}_lore.md")
 
     content = []
     if os.path.exists(private_path):
@@ -41,8 +38,8 @@ def get_private_profile(username: str) -> str:
     return "\n".join(content) if content else "No private user profile information found"
 
 
-@mcp.resource(profile_uri('combined'))
-def get_combined_profile() -> str:
-    public = get_public_profile()
-    private = get_private_profile()
+@mcp.resource(profile_uri("combined"))
+def get_combined_profile(username: str) -> str:
+    public = get_public_profile(username)
+    private = get_private_profile(username)
     return f"--- PUBLIC PROFILE ---\n{public}\n\n--- PRIVATE PROFILE ---\n{private}\n"
