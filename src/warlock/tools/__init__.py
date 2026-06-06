@@ -1,1 +1,1 @@
-from . import youtrack
+from . import youtrack as youtrack

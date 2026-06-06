@@ -1,6 +1,6 @@
 import os
 
-from .core import mcp, profile_uri, PROJECT_ROOT
+from .core import PROJECT_ROOT, mcp, profile_uri
 
 
 @mcp.resource(profile_uri("public"))

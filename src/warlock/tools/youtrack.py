@@ -1,5 +1,7 @@
 import os
+
 import httpx
+
 from ..core import mcp
 
 
@@ -93,8 +95,15 @@ async def search_youtrack_issues(query: str, max_results: int = 10) -> str:
 
             content = [f"## Search Results - {query}\n"]
             for issue in issues[:max_results]:
-                stage_field = next((f for f in issue.get("customFields", []) if f["name"] == "Stage"), None)
-                status = stage_field["value"]["name"] if stage_field and stage_field.get("value") else "Unknown"
+                stage_field = next(
+                    (f for f in issue.get("customFields", []) if f["name"] == "Stage"),
+                    None,
+                )
+                status = (
+                    stage_field["value"]["name"]
+                    if stage_field and stage_field.get("value")
+                    else "Unknown"
+                )
                 content.append(f"- **{issue['idReadable']}**: {issue['summary']} [{status}]")
             return "\n".join(content)
 
@@ -123,8 +132,15 @@ async def get_youtrack_issue_details(issue_id: str) -> str:
             if not issue:
                 return f"Failed to find issue: {issue_id}"
 
-            stage_field = next((f for f in issue.get("customFields", []) if f["name"] == "Stage"), None)
-            status = stage_field["value"]["name"] if stage_field and stage_field.get("value") else "Unknown"
+            stage_field = next(
+                (f for f in issue.get("customFields", []) if f["name"] == "Stage"),
+                None,
+            )
+            status = (
+                 stage_field["value"]["name"]
+                 if stage_field and stage_field.get("value")
+                 else "Unknown"
+            )
             tags_list = issue.get("tags") or []
             tags_str = ", ".join(f"#{tag['name']}" for tag in tags_list) or "None"
 
