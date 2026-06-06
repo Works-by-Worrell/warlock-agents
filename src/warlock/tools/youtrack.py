@@ -1,5 +1,4 @@
 import os
-
 import httpx
 from ..core import mcp
 
@@ -67,10 +66,73 @@ async def create_youtrack_issue(
 
 
 @mcp.tool()
-async def find_youtrack_issue(
-    issue_id: str,
-) -> str:
+async def search_youtrack_issues(query: str, max_results: int = 10) -> str:
     """
-    Search YouTrack for an issue based on the given ID.
+    Search YouTrack for issues matching the query.
     """
-    return f"Not implemented: {issue_id}"
+    base_url = os.getenv("YOUTRACK_URL")
+    token = os.getenv("YOUTRACK_TOKEN")
+    headers = {"Authorization": f"Bearer {token}"}
+
+    params = {
+        "query": query,
+        "$top": max_results,
+        "fields": "idReadable,summary,customFields(name,value(name))"
+    }
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(f"{base_url}/api/issues", params=params, headers=headers)
+
+        if not resp.is_success:
+            return f"Failed to search issues: {resp.status_code} - {resp.text}"
+        else:
+            issues = resp.json()
+
+            if not issues:
+                return f"No issues found for query: {query}"
+
+            content = [f"## Search Results - {query}\n"]
+            for issue in issues[:max_results]:
+                stage_field = next((f for f in issue.get("customFields", []) if f["name"] == "Stage"), None)
+                status = stage_field["value"]["name"] if stage_field and stage_field.get("value") else "Unknown"
+                content.append(f"- **{issue['idReadable']}**: {issue['summary']} [{status}]")
+            return "\n".join(content)
+
+
+@mcp.tool()
+async def get_youtrack_issue_details(issue_id: str) -> str:
+    """
+    Fetch details about a given YouTrack issue.
+    """
+    base_url = os.getenv("YOUTRACK_URL")
+    token = os.getenv("YOUTRACK_TOKEN")
+    headers = {"Authorization": f"Bearer {token}"}
+
+    params = {
+        "fields": "idReadable,summary,description,tags(name),customFields(name,value(name))"
+    }
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(f"{base_url}/api/issues/{issue_id}", params=params, headers=headers)
+
+        if not resp.is_success:
+            return f"Failed to fetch details: {resp.status_code} - {resp.text}"
+        else:
+            issue = resp.json()
+
+            if not issue:
+                return f"Failed to find issue: {issue_id}"
+
+            stage_field = next((f for f in issue.get("customFields", []) if f["name"] == "Stage"), None)
+            status = stage_field["value"]["name"] if stage_field and stage_field.get("value") else "Unknown"
+            tags_list = issue.get("tags") or []
+            tags_str = ", ".join(f"#{tag['name']}" for tag in tags_list) or "None"
+
+            content = [
+                f"# {issue['idReadable']} - {issue['summary']}\n",
+                f"- **Status**: {status}\n",
+                f"- **Tags**: {tags_str}\n",
+                f"- **Description**:\n{issue.get('description', 'No description provided.')}",
+            ]
+
+            return "\n".join(content)
