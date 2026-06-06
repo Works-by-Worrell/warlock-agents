@@ -1,12 +1,12 @@
 import os
 
-from .core import PROJECT_ROOT, mcp, profile_uri
+from ..core import PROJECT_ROOT, mcp, profile_uri
 
 
 @mcp.resource(profile_uri("public"))
 def get_public_profile(username: str) -> str:
     """Returns the public technical profile (ME.md)"""
-    public_path = os.path.join(PROJECT_ROOT, ".public", f"{username}.md")
+    public_path = os.path.join(PROJECT_ROOT, ".profiles", ".public", f"{username}.md")
 
     if not os.path.exists(public_path):
         return f"Error: Public profile {username} not found."
@@ -21,8 +21,8 @@ def get_private_profile(username: str) -> str:
     Safely returns local personal alignment constraints and distilled identity
     lore from the gitignored boundary.
     """
-    private_path = os.path.join(PROJECT_ROOT, ".private", f"{username}_profile.md")
-    lore_path = os.path.join(PROJECT_ROOT, ".private", f"{username}_lore.md")
+    private_path = os.path.join(PROJECT_ROOT, ".profiles", ".private", f"{username}_profile.md")
+    lore_path = os.path.join(PROJECT_ROOT, ".profiles", ".private", f"{username}_lore.md")
 
     content = []
     if os.path.exists(private_path):
