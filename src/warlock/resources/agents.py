@@ -51,7 +51,7 @@ def agent_session(
     skills_content = []
     if skills:
         skills_dir = os.path.join(PROJECT_ROOT, "skills")
-        for s in [s.strip() for s in skills.split(",") if s.strim()]:
+        for s in [s.strip() for s in skills.split(",") if s.strip()]:
             skill_md_path = os.path.join(skills_dir, s, "SKILL.md")
             if os.path.exists(skill_md_path):
                 with open(skill_md_path) as f:
