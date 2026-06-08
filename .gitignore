@@ -1,8 +1,8 @@
-# Ignore all contents of the .private directory
-.profiles/.private/*
+# Ignore all contents of the .private directories
+**/.private/*
 
-# Do not ignore the README.md file
-!.profiles/.private/README.md
+# Do not ignore the README.md files in .private directories
+!**/.private/README.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
