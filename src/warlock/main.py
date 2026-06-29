@@ -24,7 +24,7 @@ def main():
     parser = argparse.ArgumentParser("Warlock MCP Server")
     parser.add_argument(
         "--transport",
-        choices=["stdio", "sse"],
+        choices=["stdio", "streamable-http"],
         default="stdio",
         help="Transport protocol to use (default: stdio)", )
     parser.add_argument(
@@ -39,12 +39,12 @@ def main():
 
     args = parser.parse_args()
 
-    if args.transport == "sse":
+    if args.transport == "streamable-http":
         logger.info(f"Starting Warlock MCP Server in SSE Mode on http://{args.host}:{args.port}")
         mcp.settings.host = args.host
         mcp.settings.port = int(args.port)
         mcp.settings.transport_security.enable_dns_rebinding_protection = False
-        mcp.run(transport="sse")
+        mcp.run(transport="streamable-http")
     else:
         logger.info("Starting Warlock MCP Server in stdio mode")
         mcp.run(transport="stdio")
