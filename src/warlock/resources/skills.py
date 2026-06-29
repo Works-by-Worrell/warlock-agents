@@ -1,9 +1,11 @@
 import importlib.util
 import inspect
+import logging
 import os
 
 from ..core import PROJECT_ROOT, mcp
 
+logger = logging.getLogger(__name__)
 
 def get_skill_path(skill_name: str) -> str:
     return os.path.join(PROJECT_ROOT, "skills", skill_name, "SKILL.md")
@@ -50,6 +52,7 @@ def load_dynamic_skills_tools():
                         mcp.add_tool(func)
                         registered_count += 1
 
-                print(f"Dynamically registered {registered_count} tools for skill: {skill_name}")
+                logger.info(
+                    f"Dynamically registered {registered_count} tools for skill: {skill_name}")
             except Exception as e:
-                print(f"Failed to load tools for skill '{skill_name}': {e}")
+                logger.error(f"Failed to load tools for skill '{skill_name}': {e}")
