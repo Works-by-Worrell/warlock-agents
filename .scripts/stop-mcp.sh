@@ -34,4 +34,4 @@ else
     echo "Process ID ($PID) is not running. Cleaning up stale PID file."
 fi
 
-rm -rf "$PID_FILE"
+rm -f "$PID_FILE"
