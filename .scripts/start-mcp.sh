@@ -41,7 +41,7 @@ echo "Logs: $LOG_FILE"
 cd "$PROJECT_ROOT" || exit
 
 # Start Warlock MCP Server headlessly with UV and nohup
-nohup "$UV_BIN" run python -m warlock.main --log-file "$LOG_FILE" --transport streamable-http < /dev/null > "$PROJECT_ROOT/.private/logs/stdout.log" 2>&1 &
+nohup "$UV_BIN" run python -m warlock.main --log-file "$LOG_FILE" --transport streamable-http "$@" < /dev/null > "$PROJECT_ROOT/.private/logs/stdout.log" 2>&1 &
 
 NEW_PID=$!
 echo "$NEW_PID" > "$PID_FILE"
