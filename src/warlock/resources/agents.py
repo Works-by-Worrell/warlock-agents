@@ -9,8 +9,10 @@ def get_agent_persona(agent_name: str) -> str:
     Returns the layered agent persona. Combines the public base definition
     with the gitignored private overlay if it exists locally.
     """
-    public_path = os.path.join(PROJECT_ROOT, "agents", f"{agent_name}.md")
-    private_path = os.path.join(PROJECT_ROOT, "agents", ".private", f"{agent_name}_overlay.md")
+    public_path = os.path.join(PROJECT_ROOT, ".public", "agents", f"{agent_name}.md")
+    private_path = os.path.join(PROJECT_ROOT, ".private", "agents", f"{agent_name}_overlay.md")
+    if not os.path.exists(private_path):
+        private_path = os.path.join(PROJECT_ROOT, ".private", "agents", f"{agent_name}.md")
 
     content = []
 
@@ -19,24 +21,22 @@ def get_agent_persona(agent_name: str) -> str:
         with open(public_path) as f:
             content.append(f"## BASE PERSONA ({agent_name})\n")
             content.append(f.read())
-    else:
-        return f"Error: Public agent definition for '{agent_name}' not found."
 
     # Private overlay
     if os.path.exists(private_path):
         with open(private_path) as f:
-            content.append("\n\n## PRIVATE OPERATIONAL OVERLAY\n")
+            if content:
+                content.append("\n\n## PRIVATE OPERATIONAL OVERLAY\n")
             content.append(f.read())
+
+    if not content:
+        return f"Error: Agent definition for '{agent_name}' not found."
 
     return "\n".join(content)
 
 
 @mcp.prompt()
-def agent_session(
-    agent_name: str,
-    username: str,
-    skills: str = ""
-) -> str:
+def agent_session(agent_name: str, username: str, skills: str = "") -> str:
     """
     Assembles a complete agent system prompt containing:
     1. Agent Persona (Personality)
@@ -46,11 +46,12 @@ def agent_session(
     persona = get_agent_persona(agent_name)
 
     from .profiles import get_combined_profile
+
     user_profile = get_combined_profile(username)
 
     skills_content = []
     if skills:
-        skills_dir = os.path.join(PROJECT_ROOT, "skills")
+        skills_dir = os.path.join(PROJECT_ROOT, ".skills")
         for s in [s.strip() for s in skills.split(",") if s.strip()]:
             skill_md_path = os.path.join(skills_dir, s, "SKILL.md")
             if os.path.exists(skill_md_path):
@@ -59,8 +60,9 @@ def agent_session(
             else:
                 skills_content.append(f"### Skill: {s}\nError: Skill '{s}' not found.")
 
-    skills_section = "\n\n".join(skills_content) \
-        if skills_content else "No specialized skills loaded."
+    skills_section = (
+        "\n\n".join(skills_content) if skills_content else "No specialized skills loaded."
+    )
 
     return f"""You are booting into a specialized agent session.
 

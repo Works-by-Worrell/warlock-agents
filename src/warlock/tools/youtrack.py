@@ -34,7 +34,7 @@ async def create_youtrack_issue(
                             t
                             for t in all_tags
                             if t["name"].lower() == tag_name.lower()
-                               or t["name"].lower() == f"#{tag_name.lower()}"
+                            or t["name"].lower() == f"#{tag_name.lower()}"
                         ),
                         None,
                     )
@@ -71,6 +71,12 @@ async def create_youtrack_issue(
 async def search_youtrack_issues(query: str, max_results: int = 10) -> str:
     """
     Search YouTrack for issues matching the query.
+
+    Supports standard YouTrack search query syntax, including:
+    - Unresolved tickets: "#Unresolved"
+    - Board and Sprint specific lists: "Board {Board Name}: {Sprint Name}"
+        (e.g., "Board Warlock MCP: Sprint.001")
+    - Specific tags: "tag: #Warlock"
     """
     base_url = os.getenv("YOUTRACK_URL")
     token = os.getenv("YOUTRACK_TOKEN")
@@ -79,7 +85,7 @@ async def search_youtrack_issues(query: str, max_results: int = 10) -> str:
     params = {
         "query": query,
         "$top": max_results,
-        "fields": "idReadable,summary,customFields(name,value(name))"
+        "fields": "idReadable,summary,customFields(name,value(name))",
     }
 
     async with httpx.AsyncClient() as client:
@@ -117,9 +123,7 @@ async def get_youtrack_issue_details(issue_id: str) -> str:
     token = os.getenv("YOUTRACK_TOKEN")
     headers = {"Authorization": f"Bearer {token}"}
 
-    params = {
-        "fields": "idReadable,summary,description,tags(name),customFields(name,value(name))"
-    }
+    params = {"fields": "idReadable,summary,description,tags(name),customFields(name,value(name))"}
 
     async with httpx.AsyncClient() as client:
         resp = await client.get(f"{base_url}/api/issues/{issue_id}", params=params, headers=headers)
@@ -137,9 +141,9 @@ async def get_youtrack_issue_details(issue_id: str) -> str:
                 None,
             )
             status = (
-                 stage_field["value"]["name"]
-                 if stage_field and stage_field.get("value")
-                 else "Unknown"
+                stage_field["value"]["name"]
+                if stage_field and stage_field.get("value")
+                else "Unknown"
             )
             tags_list = issue.get("tags") or []
             tags_str = ", ".join(f"#{tag['name']}" for tag in tags_list) or "None"
