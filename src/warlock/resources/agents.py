@@ -11,6 +11,8 @@ def get_agent_persona(agent_name: str) -> str:
     """
     public_path = os.path.join(PROJECT_ROOT, ".public", "agents", f"{agent_name}.md")
     private_path = os.path.join(PROJECT_ROOT, ".private", "agents", f"{agent_name}_overlay.md")
+    if not os.path.exists(private_path):
+        private_path = os.path.join(PROJECT_ROOT, ".private", "agents", f"{agent_name}.md")
 
     content = []
 
