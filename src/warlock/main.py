@@ -40,7 +40,7 @@ def main():
     args = parser.parse_args()
 
     if args.transport == "streamable-http":
-        logger.info(f"Starting Warlock MCP Server in Streamable HTTP Mode on http://{args.host}:{args.port}")
+        logger.info(f"Starting Warlock MCP Server in Streamable HTTP Mode on http://{args.host}:{args.port}/mcp")
         mcp.settings.host = args.host
         mcp.settings.port = int(args.port)
         mcp.settings.transport_security.enable_dns_rebinding_protection = False
