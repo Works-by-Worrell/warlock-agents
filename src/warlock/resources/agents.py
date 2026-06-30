@@ -36,11 +36,7 @@ def get_agent_persona(agent_name: str) -> str:
 
 
 @mcp.prompt()
-def agent_session(
-    agent_name: str,
-    username: str,
-    skills: str = ""
-) -> str:
+def agent_session(agent_name: str, username: str, skills: str = "") -> str:
     """
     Assembles a complete agent system prompt containing:
     1. Agent Persona (Personality)
@@ -50,6 +46,7 @@ def agent_session(
     persona = get_agent_persona(agent_name)
 
     from .profiles import get_combined_profile
+
     user_profile = get_combined_profile(username)
 
     skills_content = []
@@ -63,8 +60,9 @@ def agent_session(
             else:
                 skills_content.append(f"### Skill: {s}\nError: Skill '{s}' not found.")
 
-    skills_section = "\n\n".join(skills_content) \
-        if skills_content else "No specialized skills loaded."
+    skills_section = (
+        "\n\n".join(skills_content) if skills_content else "No specialized skills loaded."
+    )
 
     return f"""You are booting into a specialized agent session.
 

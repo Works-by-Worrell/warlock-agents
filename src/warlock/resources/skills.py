@@ -7,8 +7,9 @@ from ..core import PROJECT_ROOT, mcp
 
 logger = logging.getLogger(__name__)
 
+
 def get_skill_path(skill_name: str) -> str:
-    return os.path.join(PROJECT_ROOT, "skills", skill_name, "SKILL.md")
+    return os.path.join(PROJECT_ROOT, ".skills", skill_name, "SKILL.md")
 
 
 @mcp.resource("skill://{skill_name}")
@@ -24,7 +25,7 @@ def get_skill_instructions(skill_name: str) -> str:
 
 def load_dynamic_skills_tools():
     """Scans the skills/ directory and dynamically registers functions in tools.py as MCP tools."""
-    skills_dir = os.path.join(PROJECT_ROOT, "skills")
+    skills_dir = os.path.join(PROJECT_ROOT, ".skills")
     if not os.path.exists(skills_dir):
         os.makedirs(skills_dir, exist_ok=True)
         return
@@ -53,6 +54,7 @@ def load_dynamic_skills_tools():
                         registered_count += 1
 
                 logger.info(
-                    f"Dynamically registered {registered_count} tools for skill: {skill_name}")
+                    f"Dynamically registered {registered_count} tools for skill: {skill_name}"
+                )
             except Exception as e:
                 logger.error(f"Failed to load tools for skill '{skill_name}': {e}")
