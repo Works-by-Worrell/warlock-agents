@@ -47,11 +47,12 @@ def main():
         log_handlers.append(logging.StreamHandler(sys.stderr))
 
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
         handlers=log_handlers,
         force=True,
     )
+    logging.getLogger("warlock").setLevel(logging.DEBUG)
 
     load_dynamic_skills_tools()
 
