@@ -1,8 +1,11 @@
+import logging
 import os
 
 import httpx
 
 from ..core import mcp
+
+logger = logging.getLogger(__name__)
 
 
 @mcp.tool()
@@ -19,6 +22,8 @@ async def create_youtrack_issue(
     base_url = os.getenv("YOUTRACK_URL")
     token = os.getenv("YOUTRACK_TOKEN")
     headers = {"Authorization": f"Bearer {token}"}
+
+    logger.info("Writing new YouTrack issue")
 
     resolved_tags = []
     if tags:
@@ -88,6 +93,8 @@ async def search_youtrack_issues(query: str, max_results: int = 10) -> str:
         "fields": "idReadable,summary,customFields(name,value(name))",
     }
 
+    logger.info(f"Searching YouTrack issues: {query}")
+
     async with httpx.AsyncClient() as client:
         resp = await client.get(f"{base_url}/api/issues", params=params, headers=headers)
 
@@ -124,6 +131,8 @@ async def get_youtrack_issue_details(issue_id: str) -> str:
     headers = {"Authorization": f"Bearer {token}"}
 
     params = {"fields": "idReadable,summary,description,tags(name),customFields(name,value(name))"}
+
+    logger.info(f"Fetching details for YouTrack issue: {issue_id}")
 
     async with httpx.AsyncClient() as client:
         resp = await client.get(f"{base_url}/api/issues/{issue_id}", params=params, headers=headers)

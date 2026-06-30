@@ -50,6 +50,7 @@ def main():
         level=logging.DEBUG,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
         handlers=log_handlers,
+        force=True,
     )
 
     load_dynamic_skills_tools()
