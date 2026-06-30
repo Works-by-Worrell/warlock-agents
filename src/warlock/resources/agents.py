@@ -19,14 +19,16 @@ def get_agent_persona(agent_name: str) -> str:
         with open(public_path) as f:
             content.append(f"## BASE PERSONA ({agent_name})\n")
             content.append(f.read())
-    else:
-        return f"Error: Public agent definition for '{agent_name}' not found."
 
     # Private overlay
     if os.path.exists(private_path):
         with open(private_path) as f:
-            content.append("\n\n## PRIVATE OPERATIONAL OVERLAY\n")
+            if content:
+                content.append("\n\n## PRIVATE OPERATIONAL OVERLAY\n")
             content.append(f.read())
+
+    if not content:
+        return f"Error: Agent definition for '{agent_name}' not found."
 
     return "\n".join(content)
 
