@@ -30,17 +30,17 @@ def main():
     parser.add_argument(
         "--host",
         default="0.0.0.0",
-        help="Host address to bind to when running SSE (default: 0.0.0.0)", )
+        help="Host address to bind to when running Streamable HTTP (default: 0.0.0.0)", )
     parser.add_argument(
         "--port",
         type=int,
         default=8000,
-        help="Port to bind to when running SSE (default: 8000)", )
+        help="Port to bind to when running Streamable HTTP (default: 8000)", )
 
     args = parser.parse_args()
 
     if args.transport == "streamable-http":
-        logger.info(f"Starting Warlock MCP Server in SSE Mode on http://{args.host}:{args.port}")
+        logger.info(f"Starting Warlock MCP Server in Streamable HTTP Mode on http://{args.host}:{args.port}")
         mcp.settings.host = args.host
         mcp.settings.port = int(args.port)
         mcp.settings.transport_security.enable_dns_rebinding_protection = False
