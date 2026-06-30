@@ -71,6 +71,12 @@ async def create_youtrack_issue(
 async def search_youtrack_issues(query: str, max_results: int = 10) -> str:
     """
     Search YouTrack for issues matching the query.
+
+    Supports standard YouTrack search query syntax, including:
+    - Unresolved tickets: "#Unresolved"
+    - Board and Sprint specific lists: "Board {Board Name}: {Sprint Name}"
+        (e.g., "Board Warlock MCP: Sprint.001")
+    - Specific tags: "tag: #Warlock"
     """
     base_url = os.getenv("YOUTRACK_URL")
     token = os.getenv("YOUTRACK_TOKEN")

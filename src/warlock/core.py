@@ -7,8 +7,6 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, "..", ".."))
 
 dotenv_path = os.path.join(PROJECT_ROOT, ".private", ".env")
-if not os.path.exists(dotenv_path):
-    dotenv_path = os.path.join(PROJECT_ROOT, ".profiles", ".private", ".env")
 load_dotenv(dotenv_path=dotenv_path)
 mcp = FastMCP("Warlock")
 

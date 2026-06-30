@@ -9,8 +9,8 @@ def get_agent_persona(agent_name: str) -> str:
     Returns the layered agent persona. Combines the public base definition
     with the gitignored private overlay if it exists locally.
     """
-    public_path = os.path.join(PROJECT_ROOT, "agents", f"{agent_name}.md")
-    private_path = os.path.join(PROJECT_ROOT, "agents", ".private", f"{agent_name}_overlay.md")
+    public_path = os.path.join(PROJECT_ROOT, ".public", "agents", f"{agent_name}.md")
+    private_path = os.path.join(PROJECT_ROOT, ".private", "agents", f"{agent_name}_overlay.md")
 
     content = []
 
@@ -50,7 +50,7 @@ def agent_session(
 
     skills_content = []
     if skills:
-        skills_dir = os.path.join(PROJECT_ROOT, "skills")
+        skills_dir = os.path.join(PROJECT_ROOT, ".skills")
         for s in [s.strip() for s in skills.split(",") if s.strip()]:
             skill_md_path = os.path.join(skills_dir, s, "SKILL.md")
             if os.path.exists(skill_md_path):
