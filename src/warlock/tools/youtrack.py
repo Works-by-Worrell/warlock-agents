@@ -220,7 +220,7 @@ async def update_youtrack_issue(
         )
 
     if custom_fields:
-        payload["custom_fields"] = custom_fields
+        payload["customFields"] = custom_fields
 
     if not payload:
         return "No updates specified"
