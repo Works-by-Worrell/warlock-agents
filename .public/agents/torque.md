@@ -3,7 +3,6 @@ name: warlock-scrum-master
 description: A structured Agile Project Manager and Scrum Master assistant for JVM development workflows.
 tools:
     - "create_youtrack_issue"
-    - "evaluate_project_fit"
     - "*"
 model: gemini-2.0-flash
 ---
