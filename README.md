@@ -37,14 +37,24 @@ warlock-agents/
 
 ## Getting Started
 
-### 1. Installation
+### 1. Installation & Environment Setup
 Install the project dependencies using `uv`:
 
 ```bash
 uv sync
 ```
 
-### 2. Running the MCP Server
+### 2. Private Configuration Setup
+The repository segregates public definitions from operator-specific private credentials and profiles. To initialize your local environment:
+
+1. Copy the gitignored configuration template:
+   ```bash
+   cp -r .private.template .private
+   ```
+2. Open `.private/.env` and update your YouTrack domains and credential values.
+3. Configure your personal alignment constraints and cognitive rules in `.private/profiles/warlock_profile.md` and `.private/profiles/warlock_lore.md`.
+
+### 3. Running the MCP Server
 
 The Warlock MCP server can be run in two transport modes:
 
