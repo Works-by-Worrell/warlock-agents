@@ -76,16 +76,16 @@ async def fetch_and_install_agent(server_url: str, agent_name: str) -> bool:
                     return False
 
                 # Define destination path in workspace scope
-                global_dest_dir = os.path.expanduser(
-                    os.path.join("~", ".gemini", "config", "agents", agent_name)
+                workspace_dest_dir = os.path.abspath(
+                    os.path.join(PROJECT_ROOT, "..", ".agents", "agents", agent_name)
                 )
-                os.makedirs(global_dest_dir, exist_ok=True)
-                workspace_dest_file = os.path.join(global_dest_dir, "agent.md")
+                os.makedirs(workspace_dest_dir, exist_ok=True)
+                workspace_dest_file = os.path.join(workspace_dest_dir, "agent.md")
 
                 with open(workspace_dest_file, "w", encoding="utf-8") as f:
                     f.write(text_content)
 
-                print(f"  ✅ Installed '{agent_name}' globally to {workspace_dest_file}")
+                print(f"  ✅ Installed '{agent_name}' locally to {workspace_dest_file}")
                 return True
 
     except Exception as e:

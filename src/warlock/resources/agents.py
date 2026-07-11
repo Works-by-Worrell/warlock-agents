@@ -13,9 +13,9 @@ def extract_frontmatter_and_body(content: str) -> Tuple[str, str]:
                 end_idx = i
                 break
 
-        if end_idx == -1:
-            frontmatter = "".join(lines[:end_idx] + 1)
-            body = "".join(lines[end_idx + 1 :])
+        if end_idx != -1:
+            frontmatter = "".join(lines[:end_idx + 1])
+            body = "\n".join(lines[end_idx + 1 :])
             return frontmatter, body
 
     return "", content
@@ -32,7 +32,6 @@ def get_agent_persona(agent_name: str) -> str:
     if not os.path.exists(private_path):
         private_path = os.path.join(PROJECT_ROOT, ".private", "agents", f"{agent_name}.md")
 
-    content = []
     frontmatter = ""
     bodies = []
 
@@ -48,8 +47,7 @@ def get_agent_persona(agent_name: str) -> str:
     if os.path.exists(private_path):
         with open(private_path) as f:
             priv_fm, priv_content = extract_frontmatter_and_body(f.read())
-            bodies.append(f"## PRIVATE OPERATIONAL OVERLAY\nP{priv_content}")
-            content.append(f.read())
+            bodies.append(f"## PRIVATE OPERATIONAL OVERLAY\n{priv_content}")
 
     if not frontmatter and not bodies:
         return f"Error: Agent definition for '{agent_name}' not found."
