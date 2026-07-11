@@ -81,7 +81,7 @@ echo "=================================="
 
 # Test SSH connection over Tailscale SSH
 echo "Checking Tailscale SSH connection..."
-if ! ssh -o ConnectTimeout=5 -o BatchMode=yes "$REMOTE_HOST" exit 2>/dev/null; then
+if ! ssh -o ConnectTimeout=5 "$REMOTE_HOST" exit 2>/dev/null; then
     echo "Error: Cannot connect to $REMOTE_HOST via SSH."
     echo "Please ensure Tailscale SSH is enabled and authorized on both machines."
     exit 1
