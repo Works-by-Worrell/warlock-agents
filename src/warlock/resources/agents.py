@@ -1,6 +1,24 @@
 import os
+from typing import Tuple
 
 from ..core import PROJECT_ROOT, mcp
+
+
+def extract_frontmatter_and_body(content: str) -> Tuple[str, str]:
+    lines = content.split("\n")
+    if lines and lines[0].strip() == "---":
+        end_idx = -1
+        for i in range(1, len(lines)):
+            if lines[i].strip() == "---":
+                end_idx = i
+                break
+
+        if end_idx == -1:
+            frontmatter = "".join(lines[:end_idx] + 1)
+            body = "".join(lines[end_idx + 1 :])
+            return frontmatter, body
+
+    return "", content
 
 
 @mcp.resource("agent://{agent_name}")
@@ -15,24 +33,35 @@ def get_agent_persona(agent_name: str) -> str:
         private_path = os.path.join(PROJECT_ROOT, ".private", "agents", f"{agent_name}.md")
 
     content = []
+    frontmatter = ""
+    bodies = []
 
     # Load public base agent
     if os.path.exists(public_path):
         with open(public_path) as f:
-            content.append(f"## BASE PERSONA ({agent_name})\n")
-            content.append(f.read())
+            pub_fm, pub_content = extract_frontmatter_and_body(f.read())
+            if pub_fm:
+                frontmatter = pub_fm
+            bodies.append(f"## BASE PERSONA ({agent_name})\n{pub_content}")
 
     # Private overlay
     if os.path.exists(private_path):
         with open(private_path) as f:
-            if content:
-                content.append("\n\n## PRIVATE OPERATIONAL OVERLAY\n")
+            priv_fm, priv_content = extract_frontmatter_and_body(f.read())
+            bodies.append(f"## PRIVATE OPERATIONAL OVERLAY\nP{priv_content}")
             content.append(f.read())
 
-    if not content:
+    if not frontmatter and not bodies:
         return f"Error: Agent definition for '{agent_name}' not found."
 
-    return "\n".join(content)
+    combined = []
+    if frontmatter:
+        combined.append(frontmatter)
+        combined.append("\n")
+
+    combined.append("\n\n".join(bodies))
+
+    return "".join(combined)
 
 
 @mcp.prompt()
