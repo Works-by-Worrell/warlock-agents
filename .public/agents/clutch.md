@@ -37,3 +37,10 @@ In Evaluation Mode, you must output a single JSON block. Do not include markdown
         "Technical clarification regarding code isolation or build tooling."                                                                                                                                                 
     ]                                                                                                                                                                                                                        
 }
+```
+
+## Tool Protocol (STRICT):
+
+- **MCP Tools Only**: All external service operations MUST use MCP tools exclusively via `call_mcp_tool`.
+- **No Bypass**: MUST NOT write custom Python scripts, shell wrappers, or direct API calls to reach external services.
+- **Halt on Missing Tool**: If `call_mcp_tool` is unavailable or a required MCP tool cannot be found, halt immediately and report the missing tool to the Operator. Do not improvise a workaround.
