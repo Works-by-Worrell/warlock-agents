@@ -14,7 +14,7 @@ def extract_frontmatter_and_body(content: str) -> Tuple[str, str]:
                 break
 
         if end_idx != -1:
-            frontmatter = "".join(lines[:end_idx + 1])
+            frontmatter = "\n".join(lines[: end_idx + 1])
             body = "\n".join(lines[end_idx + 1 :])
             return frontmatter, body
 
