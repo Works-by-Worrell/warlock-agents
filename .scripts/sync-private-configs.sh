@@ -80,8 +80,9 @@ echo "Remote Path: $REMOTE_PATH"
 echo "=================================="
 
 # Test SSH connection over Tailscale SSH
+# Note: kept fully interactive so Tailscale re-auth URLs surface to the terminal.
 echo "Checking Tailscale SSH connection..."
-if ! ssh -o ConnectTimeout=5 -o BatchMode=yes "$REMOTE_HOST" exit 2>/dev/null; then
+if ! ssh -o ConnectTimeout=10 "$REMOTE_HOST" exit; then
     echo "Error: Cannot connect to $REMOTE_HOST via SSH."
     echo "Please ensure Tailscale SSH is enabled and authorized on both machines."
     exit 1
@@ -94,8 +95,8 @@ for dir in "${SYNC_DIRS[@]}"; do
         # Push: local -> remote
         if [[ -d "$dir" ]]; then
             echo "Pushing $dir..."
-            # Ensure remote parent directory exists
-            ssh "$REMOTE_HOST" "mkdir -p \"\$(dirname \"$REMOTE_PATH/$dir\")\""
+            # Ensure remote parent directory exists (dirname evaluated on remote shell)
+            ssh "$REMOTE_HOST" "mkdir -p \"$(dirname "$REMOTE_PATH/$dir")\""
             rsync -avz --exclude '.git/' --exclude 'README.md' "$dir/" "$REMOTE_HOST:$REMOTE_PATH/$dir/"
         else
             echo "Skipping $dir (local directory does not exist)"

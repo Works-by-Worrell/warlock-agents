@@ -154,6 +154,7 @@ activemq-data/
 
 # Environments
 .env
+!.private.template/.env
 .envrc
 .venv
 env/

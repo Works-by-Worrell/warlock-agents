@@ -37,14 +37,24 @@ warlock-agents/
 
 ## Getting Started
 
-### 1. Installation
+### 1. Installation & Environment Setup
 Install the project dependencies using `uv`:
 
 ```bash
 uv sync
 ```
 
-### 2. Running the MCP Server
+### 2. Private Configuration Setup
+The repository segregates public definitions from operator-specific private credentials and profiles. To initialize your local environment:
+
+1. Copy the gitignored configuration template:
+   ```bash
+   cp -r .private.template .private
+   ```
+2. Open `.private/.env` and update your YouTrack domains and credential values.
+3. Configure your personal alignment constraints and cognitive rules in `.private/profiles/warlock_profile.md` and `.private/profiles/warlock_lore.md`.
+
+### 3. Running the MCP Server
 
 The Warlock MCP server can be run in two transport modes:
 
@@ -79,3 +89,31 @@ To sync your gitignored `.private/` folder securely between devices over a Tails
    ```bash
    .scripts/sync-private-configs.sh --direction pull <remote-tailscale-ip>
    ```
+
+> **SSH Config Requirement:** The sync script uses your local username by default. If your remote username differs (e.g., `warlock-admin` on the Alienware vs. `raworre` on the MSI), add an entry to `~/.ssh/config` on your local machine to avoid authentication failures:
+> ```
+> Host warlock-alien <tailscale-ip>
+>     User warlock-admin
+> ```
+
+---
+
+## Orchestrator Session Setup
+
+Subagent type registrations are **ephemeral** — they do not persist across `agy` CLI sessions. At the start of each new orchestrator session, named subagents (`torque`, `clutch`) must be re-registered before they can be invoked.
+
+### Why This Matters
+Subagents registered **without** `enable_mcp_tools: true` cannot call `call_mcp_tool` and will not have access to the lazy-loaded `warlock-mcp` YouTrack tools. Without this flag, a subagent will fall back to reading the Python source in `src/warlock/tools/` and executing it directly — bypassing the MCP boundary entirely.
+
+### Registration Protocol
+When invoking a named subagent for the first time in a session, the orchestrator must:
+
+1. Fetch the merged persona from the MCP server:
+   ```
+   read_resource: agent://torque
+   ```
+2. Register the subagent type via `define_subagent` with `enable_mcp_tools: true`
+3. Only then invoke via `invoke_subagent` with the registered type name
+
+This protocol is enforced as a workspace rule in `.agents/AGENTS.md` (Section 3).
+
