@@ -74,7 +74,7 @@
   * **Enable GitHub Pages:** In the repository settings, navigate to **Pages** and set the source to the `main` branch root. Verify the site is accessible at `https://works-by-worrell.github.io`.
   * **Scaffold Minimal Landing Page:** Commit an `index.html` at the root establishing the portfolio identity. Full content development is deferred until the Squarespace routing is confirmed in P5-A4.
 
-- [ ] **[P1-R1] Repository Restructuring**
+- [x] **[P1-R1] Repository Restructuring**
   Re-architect the local repository layout into a strictly decoupled, domain-driven structure. This ensures a clean separation of concerns between application logic, infrastructure declarations, and CI/CD pipelines, preventing configuration bleed and maintaining an industry-grade portfolio standard.
 
   Target Directory Map:
