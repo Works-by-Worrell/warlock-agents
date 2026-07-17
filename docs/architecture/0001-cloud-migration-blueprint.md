@@ -525,37 +525,36 @@
   Deploy a synchronization script inside the `scripts/` directory to pull tracking milestones from the public GitHub Organization repo and store them in Cloud Firestore. This provides real-time data backends for the portfolio page.
 
   Python Implementation:
-```python
-import os
-from github import Github
-from google.cloud import firestore
-
-def sync_github_milestones_to_firestore():
-  gh_token = os.environ.get("GITHUB_TOKEN")
-  repo_path = "Works-by-Worrell/flag-ship"
+  ```python
+  import os
+  from github import Github
+  from google.cloud import firestore
   
-  gh = Github(gh_token)
-  db = firestore.Client()
-  repo = gh.get_repo(repo_path)
+  def sync_github_milestones_to_firestore():
+    gh_token = os.environ.get("GITHUB_TOKEN")
+    repo_path = "Works-by-Worrell/flag-ship"
+    
+    gh = Github(gh_token)
+    db = firestore.Client()
+    repo = gh.get_repo(repo_path)
+    
+    print(f"Opening synchronization pipelines for {repo_path}...")
+    milestones = repo.get_milestones(state="all")
+      for ms in milestones:
+        payload = {
+            "title": ms.title,
+            "description": ms.description,
+            "open_issues": ms.open_issues,
+            "closed_issues": ms.closed_issues,
+            "state": ms.state,
+            "updated_at": ms.updated_at.isoformat() if ms.updated_at else None
+        }
+        db.collection("portfolio_milestones").document(str(ms.id)).set(payload)
+        print(f"Successfully synced target milestone: {ms.title}")
   
-  print(f"Opening synchronization pipelines for {repo_path}...")
-  milestones = repo.get_milestones(state="all")
-  
-  for ms in milestones:
-      payload = {
-          "title": ms.title,
-          "description": ms.description,
-          "open_issues": ms.open_issues,
-          "closed_issues": ms.closed_issues,
-          "state": ms.state,
-          "updated_at": ms.updated_at.isoformat() if ms.updated_at else None
-      }
-      db.collection("portfolio_milestones").document(str(ms.id)).set(payload)
-      print(f"Successfully synced target milestone: {ms.title}")
-
-if __name__ == "__main__":
-  sync_github_milestones_to_firestore()
-```
+  if __name__ == "__main__":
+    sync_github_milestones_to_firestore()
+  ```
 
 - [ ] **[P5-A2] Squarespace Custom Subdomain Ingress Architecture**
   Map public HTTP traffic from your custom subdomain to your managed Cloud Run instance.
