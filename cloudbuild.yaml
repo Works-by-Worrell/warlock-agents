@@ -1,0 +1,43 @@
+steps:
+  - name: 'python:3.11-slim'
+    id: 'Execute Test Suite'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cd python-app
+        pip install -r requirements.txt pytest pytest-mock
+        pytest tests/ --strict-markers
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build Optimized Container'
+    waitFor: ['Execute Test Suite']
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker build \
+          --cache-from=us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:latest \
+          -t us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:latest \
+          -t us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:$SHORT_SHA \
+          .
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Artifact Layers'
+    args: [
+      'push', 
+      'us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:latest'
+    ]
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy to Cloud Run Environment'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'warlock-agents-core'
+      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:latest'
+      - '--region=us-central1'
+      - '--platform=managed'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
