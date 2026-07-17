@@ -157,8 +157,10 @@
       mock_db = MagicMock()
       mocker.patch("google.cloud.firestore.Client", return_value=mock_db)
       return mock_db
+  ```
 
   Storage Layer Tests (tests/test_storage.py):
+  ```python
   import pytest
   from unittest.mock import MagicMock
   from src.storage.firestore_client import _load_from_firestore
