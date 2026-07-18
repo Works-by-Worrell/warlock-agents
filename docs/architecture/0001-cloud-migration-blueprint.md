@@ -144,7 +144,7 @@
     * Standard Types: `feat` (new feature), `fix` (bug fix), `infra` (Terraform/GCP changes), `docs` (runbooks/documentation), `test` (adding/refactoring tests), `chore` (dependencies/maintenance)
     * Scope Boundaries: `arch`, `storage`, `mcp`, `ci-cd`
 
-- [ ] **[P1-T1] Offline-First (Yellowstone-Compliant) Test Suite Architecture**
+- [x] **[P1-T1] Offline-First (Yellowstone-Compliant) Test Suite Architecture**
   Implement a deterministic testing strategy that completely isolates the unit testing phase from network dependencies or live cloud runtimes using a pytest framework with robust mocking of the google-cloud-firestore SDK.
   
   Global Fixtures (tests/conftest.py):
@@ -176,7 +176,7 @@
       assert result["restricted_mode"] is False
   ```
 
-- [ ] **[P1-B1] GitHub Organization Project Board Automation Setup**
+- [x] **[P1-B1] GitHub Organization Project Board Automation Setup**
   Establish a highly visible, automated public GitHub Project (v2) at the organization level (Works-by-Worrell) to showcase software craftsmanship and operational lifecycle visibility to external observers.
   * Define three foundational columns: `Todo`, `In Progress`, and `Done`. *(Note: live board uses these names — not the originally spec'd `Backlog` / `In Flight` / `Completed`.)*
   * Configure automated workflow rules using GitHub Actions to automatically transition Issues into `In Progress` upon branch creation or PR linkage, and move them to `Done` when a merge event to the production branch occurs.

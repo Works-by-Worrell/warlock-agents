@@ -8,5 +8,5 @@ def mock_firestore_client(mocker):
     Mock fixture to isolate firestore operations from network dependencies.
     """
     mock_db = MagicMock()
-    # Stub: mocker.patch will patch the client when implementation is added.
+    mocker.patch('google.cloud.firestore.Client', return_value=mock_db)
     return mock_db
