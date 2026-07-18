@@ -10,7 +10,11 @@ def _load_from_firestore(agent_id: str, client=None) -> dict:
     Load public config configurations and private overlays from Firestore.
     To be fully implemented in Phase 4.
     """
-    # Stub implementation
+    if client is not None:
+        doc = client.collection("agent_configurations").document(agent_id).get()
+        if doc.exists:
+            return doc.to_dict()
+
     return {}
 
 
