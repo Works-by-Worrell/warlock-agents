@@ -17,16 +17,16 @@ steps:
       - '-c'
       - |
         docker build \
-          --cache-from=us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:latest \
-          -t us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:latest \
-          -t us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:$SHORT_SHA \
+          --cache-from=us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:latest \
+          -t us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:latest \
+          -t us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:$SHORT_SHA \
           .
 
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push Artifact Layers'
     args: [
       'push', 
-      'us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:latest'
+      'us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:latest'
     ]
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -35,7 +35,7 @@ steps:
       - 'run'
       - 'deploy'
       - 'warlock-agents-core'
-      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:latest'
+      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:latest'
       - '--region=us-central1'
       - '--platform=managed'
 
