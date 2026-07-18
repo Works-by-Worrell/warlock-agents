@@ -68,7 +68,7 @@
       }'
     ```
 
-- [ ] **[P1-G3] Create Works-by-Worrell GitHub Pages Organization Site**
+- [x] **[P1-G3] Create Works-by-Worrell GitHub Pages Organization Site**
   Initialize the public-facing portfolio landing page by creating and enabling a GitHub Pages site at the organization level. This serves as the primary display surface for the Works-by-Worrell brand, routed through Squarespace in Phase 5 (P5-A4).
   * **Repository Creation:** Create a new repository named `Works-by-Worrell.github.io` under the `Works-by-Worrell` GitHub organization. This naming convention is required by GitHub Pages for org-level sites.
   * **Enable GitHub Pages:** In the repository settings, navigate to **Pages** and set the source to the `main` branch root. Verify the site is accessible at `https://works-by-worrell.github.io`.
@@ -125,7 +125,7 @@
   ```
   > **Blueprint Manifest:** The `0001-cloud-migration-blueprint.md` file tracks the structural migration lifecycle from a prototype segmented file system to the stateless Google Cloud Run and Native Mode Firestore tier.
 
-- [ ] **[P1-R2] Establish Git Lifecycle Standards (CONTRIBUTING.md)**
+- [x] **[P1-R2] Establish Git Lifecycle Standards (CONTRIBUTING.md)**
   Draft a comprehensive `CONTRIBUTING.md` at the root directory to define the project's branch strategy and delivery boundaries.
   * **Branch Taxonomy:** Enforce explicit type-prefixes to categorize development activity before it targets the `main` trunk:
     * `feat/` -> Application feature delivery blocks
@@ -136,7 +136,7 @@
     * `chore/` -> Maintenance, dependencies, and configuration cleanup
   * **Changelog Triggers:** Align commit messages with Conventional Commits rules (`feat(mcp): message`, `fix(storage): message`) to ensure development history reads seamlessly like an official technical changelog.
 
-- [ ] **[P1-R3] Conventional Commit & Branch-Naming Workflows**
+- [x] **[P1-R3] Conventional Commit & Branch-Naming Workflows**
   Establish a highly disciplined development lifecycle using a standardized Git branch and commit format. This ensures your public repository profile displays clear software craftsmanship and automated traceability.
   * **Branch Structure:** `<type>/phase<num>-<short-description>` or `<type>/issue-<id>-<description>`
     * Examples: `infra/phase2-cloud-run`, `feat/issue-4-github-api`, `test/phase1-mocking`
