@@ -19,7 +19,7 @@ def main():
     parser.add_argument(
         "--transport",
         choices=["stdio", "streamable-http"],
-        default="stdio",
+        default=os.environ.get("FASTMCP_TRANSPORT", "stdio"),
         help="Transport protocol to use (default: stdio)",
     )
     parser.add_argument(
@@ -30,8 +30,8 @@ def main():
     parser.add_argument(
         "--port",
         type=int,
-        default=8000,
-        help="Port to bind to when running Streamable HTTP (default: 8000)",
+        default=int(os.environ.get("PORT", 8080)),
+        help="Port to bind to when running Streamable HTTP (default: 8080)",
     )
     parser.add_argument("--log-file", help="Path to write log output (redirects from stderr)")
 
