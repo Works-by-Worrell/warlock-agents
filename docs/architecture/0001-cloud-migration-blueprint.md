@@ -363,7 +363,7 @@
 
 ## Phase 3: The Containerized Environment & Caching Matrix
 
-- [ ] **[P3-D1] Multi-Stage Performance-Optimized Dockerfile**
+- [x] **[P3-D1] Multi-Stage Performance-Optimized Dockerfile**
   Isolate build-time toolchains from production layers. This keeps the final image lightweight, accelerates cold-start execution on Cloud Run, and guarantees that layers stay within tight free-tier memory allowances.
 
   Dockerfile Content:
@@ -384,7 +384,7 @@
   ENTRYPOINT ["python", "-m", "worksbyworrell.warlock.main"]
   ```
 
-- [ ] **[P3-D2] Declarative Pipeline (cloudbuild.yaml) Configuration**
+- [x] **[P3-D2] Declarative Pipeline (cloudbuild.yaml) Configuration**
   Design the deployment pipeline to validate correctness before provisioning artifacts. The execution order requires a successful test suite run before compiling any image layers.
 
   Cloud Build Content:
