@@ -903,6 +903,7 @@ dependencies = [
     { name = "google-cloud-firestore" },
     { name = "httpx" },
     { name = "mcp", extra = ["cli"] },
+    { name = "protobuf" },
     { name = "python-dotenv" },
     { name = "uvicorn" },
 ]
@@ -919,6 +920,7 @@ requires-dist = [
     { name = "google-cloud-firestore", specifier = ">=2.28.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "mcp", extras = ["cli"], specifier = ">=1.27.2" },
+    { name = "protobuf", specifier = ">=7.35.1" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "uvicorn", specifier = ">=0.48.0" },
 ]
