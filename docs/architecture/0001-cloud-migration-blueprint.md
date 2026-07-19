@@ -440,7 +440,7 @@
     _TAG: 'manual'
   ```
 
-- [ ] **[P3-D3] Automated GitHub Push/Merge Cloud Build Trigger**
+- [x] **[P3-D3] Automated GitHub Push/Merge Cloud Build Trigger**
   Establish automated continuous deployment by binding GitHub pushes to the `main` branch to execute `cloudbuild.yaml` seamlessly without requiring manual `gcloud builds submit` invocations.
 
   Terraform Resource Block (infra/main.tf):
@@ -465,6 +465,12 @@
     depends_on = [google_project_service.apis]
   }
   ```
+
+> **Phase 3 Implementation & Deployment Session Notes:**
+> * **Container Optimization:** Built multi-stage Docker image with pip cache mounting (`DOCKER_BUILDKIT=1`). Verified Streamable-HTTP startup and health checks on port 8080.
+> * **CI/CD Pipeline Validation:** Finalized `cloudbuild.yaml` with test execution (`PYTHONPATH=src pytest tests/`), BuildKit cache support, artifact pushing, and Cloud Run deployment (`entrypoint: 'gcloud'`).
+> * **Native AR Storage Management:** Updated `infra/main.tf` to adopt native Artifact Registry `cleanup_policies` (`keep-recent-3-versions` and `delete-untagged-images`), capping storage under ~216 MB (well below the 500 MB Free Tier limit) and deprecating legacy Cloud Scheduler / PubSub resources.
+> * **Automated Deployment Trigger:** Configured 2nd Gen Cloud Build Trigger (`deploy-on-main-merge`) bound to repository `Works-by-Worrell/warlock-agents` on `main` branch merges.
 
 
 ---
