@@ -26,7 +26,8 @@ locals {
         "run.googleapis.com",
         "secretmanager.googleapis.com",
         "pubsub.googleapis.com",
-        "cloudscheduler.googleapis.com"
+        "cloudscheduler.googleapis.com",
+        "cloudbuild.googleapis.com"
     ]
 }
 
