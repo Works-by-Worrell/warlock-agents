@@ -1,8 +1,9 @@
 import json
 import os
 
-# Placeholder for firestore SDK. Implementation to resolve Firestore client setup.
-# from google.cloud import firestore
+from google.cloud import firestore
+
+from ..core import mcp
 
 
 def _load_from_firestore(agent_id: str, client=None) -> dict:
@@ -10,12 +11,16 @@ def _load_from_firestore(agent_id: str, client=None) -> dict:
     Load public config configurations and private overlays from Firestore.
     To be fully implemented in Phase 4.
     """
-    if client is not None:
-        doc = client.collection("agent_configurations").document(agent_id).get()
-        if doc.exists:
-            return doc.to_dict()
+    if client is None:
+        client = firestore.Client()
 
-    return {}
+    public_ref = client.collection("agent_configurations").document(agent_id).get()
+    private_ref = client.collection("agent_overlays").document(agent_id).get()
+
+    base = public_ref.to_dict() if public_ref.exists else {}
+    overlay = private_ref.to_dict() if private_ref.exists else {}
+
+    return {**base, **overlay}
 
 
 def _load_from_local_fs(agent_id: str) -> dict:
@@ -37,6 +42,24 @@ def get_agent_config(agent_id: str) -> dict:
     """
     Resolves storage strategy based on environmental markers.
     """
-    env = "prod" if os.environ.get("GCP_PROJECT_ID") else "local"
-    strategy = STORAGE_STRATEGIES.get(env, _load_from_local_fs)
-    return strategy(agent_id)
+    if os.environ.get("GCP_PROJECT_ID"):
+        return _load_from_firestore(agent_id)
+    return _load_from_local_fs(agent_id)
+
+
+@mcp.resource("warlock://config/{agent_id}")
+def serialize_agent_config(agent_id: str) -> str:
+    """
+    Resolves agent config and sanitizes before responding
+    """
+    merged = get_agent_config(agent_id)
+
+    markdown_output = f"# Integrated Configuration Strategy for: `{agent_id}`\n\n"
+    markdown_output += "### Structural Metadata Profiles\n"
+    for key, value in merged.items():
+        if "key" in key or "token" in key:
+            markdown_output += f"* **`{key}`**: `[ENCRYPTED/RESTRICTED_BOUNDARIES]`\n"
+        else:
+            markdown_output += f"* **`{key}`**: `{value}`\n"
+
+    return markdown_output
