@@ -7,11 +7,13 @@ steps:
       - |
         cd python-app
         pip install -r requirements.txt pytest pytest-mock
-        pytest tests/ --strict-markers
+        PYTHONPATH=src pytest tests/ --strict-markers
 
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Build Optimized Container'
     waitFor: ['Execute Test Suite']
+    env:
+      - 'DOCKER_BUILDKIT=1'
     entrypoint: 'bash'
     args:
       - '-c'
@@ -19,7 +21,7 @@ steps:
         docker build \
           --cache-from=us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:latest \
           -t us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:latest \
-          -t us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:$SHORT_SHA \
+          -t us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:${_TAG} \
           .
 
   - name: 'gcr.io/cloud-builders/docker'
@@ -31,6 +33,7 @@ steps:
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'Deploy to Cloud Run Environment'
+    entrypoint: 'gcloud'
     args:
       - 'run'
       - 'deploy'
@@ -41,3 +44,6 @@ steps:
 
 options:
   logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _TAG: 'manual'

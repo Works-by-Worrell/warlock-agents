@@ -61,13 +61,13 @@ The Warlock MCP server can be run in two transport modes:
 #### Standard I/O Mode (Default)
 Ideal for local clients running on the same machine:
 ```bash
-.venv/bin/python -m warlock.main --transport stdio
+uv run --directory python-app python -m worksbyworrell.warlock.main --transport stdio
 ```
 
 #### Streamable HTTP Mode
 Ideal for network/remote access (e.g., exposing the server on a workstation to a laptop client over a Tailscale mesh network). This mode disables DNS rebinding checks to allow traffic routing over private IP ranges:
 ```bash
-.venv/bin/python -m warlock.main --transport streamable-http --host 0.0.0.0 --port 8000
+uv run --directory python-app python -m worksbyworrell.warlock.main --transport streamable-http --host 0.0.0.0 --port 8000
 ```
 *Note: Your client should connect to `http://<server-ip>:8000/mcp`.*
 

@@ -19,8 +19,18 @@ if [ -f "$PID_FILE" ]; then
     fi
 fi
 
-# Ensure log directory exists
+# Ensure log directory exists & roll previous logs
 mkdir -p "$(dirname "$LOG_FILE")"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+if [ -f "$LOG_FILE" ]; then
+    mv "$LOG_FILE" "$(dirname "$LOG_FILE")/warlock-mcp_${TIMESTAMP}.log"
+fi
+
+STDOUT_LOG="$PROJECT_ROOT/.private/logs/stdout.log"
+if [ -f "$STDOUT_LOG" ]; then
+    mv "$STDOUT_LOG" "$PROJECT_ROOT/.private/logs/stdout_${TIMESTAMP}.log"
+fi
 
 # Locate UV
 UV_BIN="uv"
@@ -41,7 +51,7 @@ echo "Logs: $LOG_FILE"
 cd "$PROJECT_ROOT" || exit
 
 # Start Warlock MCP Server headlessly with UV and nohup
-nohup "$UV_BIN" run python -m warlock.main --log-file "$LOG_FILE" --transport streamable-http "$@" < /dev/null > "$PROJECT_ROOT/.private/logs/stdout.log" 2>&1 &
+nohup "$UV_BIN" run --directory "$PROJECT_ROOT/python-app" python -m worksbyworrell.warlock.main --log-file "$LOG_FILE" --transport streamable-http --port 8000 "$@" < /dev/null > "$PROJECT_ROOT/.private/logs/stdout.log" 2>&1 &
 
 NEW_PID=$!
 echo "$NEW_PID" > "$PID_FILE"
