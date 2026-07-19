@@ -186,7 +186,7 @@
 
 ## Phase 2: Declarative Cloud Footprint (Terraform with Firestore)
 
-- [ ] **[P2-T1] Remote State & Provider Declarations**
+- [x] **[P2-T1] Remote State & Provider Declarations**
   Initialize infra/main.tf with a secure, remote Google Cloud Storage (GCS) backend block to ensure state persistence outside the local runtime environment.
 
   Configuration Blocks:
@@ -211,7 +211,7 @@
   }
   ```
 
-- [ ] **[P2-T2] Variables Configuration**
+- [x] **[P2-T2] Variables Configuration**
   Define input schema barriers in infra/variables.tf to control parameters dynamically across environments.
 
   Configuration Blocks:
@@ -234,7 +234,7 @@
   }
   ```
 
-- [ ] **[P2-T3] Core Resource Blocks (Cloud Run, Firestore, and Secret Manager)**
+- [x] **[P2-T3] Core Resource Blocks (Cloud Run, Firestore, and Secret Manager)**
   Append the declarative definitions for the zero-cost computing layer, database, and secrets layer to infra/main.tf.
 
   Configuration Blocks:
@@ -310,7 +310,7 @@
   }
   ```
 
-- [ ] **[P2-T4] Artifact Registry Lifecycle Cleanup Policy**
+- [x] **[P2-T4] Artifact Registry Lifecycle Cleanup Policy**
   Configure strict retention barriers to explicitly keep the active image storage size below the 500 MB Free Tier threshold. Add this block directly inside infra/main.tf:
 
   Configuration Blocks:
@@ -341,7 +341,7 @@
   }
   ```
 
-- [ ] **[P2-T5] Outputs Definition**
+- [x] **[P2-T5] Outputs Definition**
   Expose structural metadata paths in infra/outputs.tf for consumption by delivery tools:
 
   Configuration Blocks:
@@ -351,6 +351,13 @@
     description = "The dynamic, system-assigned public URL for the Cloud Run instance."
   }
   ```
+
+> **Phase 2 Implementation & Deployment Session Notes:**
+> * **Project Boundaries:** Provisioned under project `worksbyworrell-nprd` in region `us-central1`.
+> * **Generalized Registry Strategy:** Customized Artifact Registry repository ID to `worksbyworrell-registry` and container image to `warlock-agents-core:latest` to support generic non-prod container management across projects (and synchronized `cloudbuild.yaml` accordingly).
+> * **API Automation & State Store:** State backend linked to GCS `gs://worksbyworrell-tf-state`. Automated 6 core GCP APIs via `google_project_service` resource loops.
+> * **Cloud Run Container Runtime:** Updated `python-app/src/worksbyworrell/warlock/main.py` CLI parser to fall back to `FASTMCP_TRANSPORT` and `PORT` environment variables dynamically on container boot.
+> * **WSL 2 Toolchain:** Installed native `docker-ce-cli` and disabled Docker Desktop Resource Saver mode to preserve permanent Unix socket communication at `/mnt/wsl/docker-desktop-bind-mounts/Ubuntu/docker.sock`.
 
 ---
 
