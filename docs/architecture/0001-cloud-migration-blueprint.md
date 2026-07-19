@@ -12,7 +12,7 @@
 | **P1-T**n | T = Testing | Test Architecture | Offline-first pytest suite, mocking strategy |
 | **P1-B**n | B = Board | Project Board | GitHub Project v2 automation setup |
 | **P2-T**n | T = Terraform | IaC Declarations | All `infra/` blocks: state, variables, resources, outputs |
-| **P3-D**n | D = Docker | Container & Pipeline | Dockerfile layers, Cloud Build YAML pipeline |
+| **P3-D**n | D = Docker | Container & Pipeline | Dockerfile layers, Cloud Build YAML pipeline, GitHub trigger |
 | **P4-N**n | N = Network/NoSQL | Transport & Data | FastMCP HTTP transport, Firestore schema, storage strategy |
 | **P5-A**n | A = Automation | Routing & Scripts | GitHub sync scripts, domain ingress, CLI proxy config |
 
@@ -388,7 +388,7 @@
   Design the deployment pipeline to validate correctness before provisioning artifacts. The execution order requires a successful test suite run before compiling any image layers.
 
   Cloud Build Content:
-  ```
+  ```yaml
   steps:
     - name: 'python:3.11-slim'
       id: 'Execute Test Suite'
@@ -398,41 +398,74 @@
         - |
           cd python-app
           pip install -r requirements.txt pytest pytest-mock
-          pytest tests/ --strict-markers
+          PYTHONPATH=src pytest tests/ --strict-markers
 
     - name: 'gcr.io/cloud-builders/docker'
       id: 'Build Optimized Container'
       waitFor: ['Execute Test Suite']
+      env:
+        - 'DOCKER_BUILDKIT=1'
       entrypoint: 'bash'
       args:
         - '-c'
         - |
           docker build \
-            --cache-from=us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:latest \
-            -t us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:latest \
-            -t us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:$SHORT_SHA \
+            --cache-from=us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:latest \
+            -t us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:latest \
+            -t us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:${_TAG} \
             .
 
     - name: 'gcr.io/cloud-builders/docker'
       id: 'Push Artifact Layers'
       args: [
         'push', 
-        'us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:latest'
+        'us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:latest'
       ]
 
     - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
       id: 'Deploy to Cloud Run Environment'
+      entrypoint: 'gcloud'
       args:
         - 'run'
         - 'deploy'
         - 'warlock-agents-core'
-        - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/warlock-agents-registry/warlock-core:latest'
+        - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/worksbyworrell-registry/warlock-agents-core:latest'
         - '--region=us-central1'
         - '--platform=managed'
 
   options:
     logging: CLOUD_LOGGING_ONLY
+
+  substitutions:
+    _TAG: 'manual'
   ```
+
+- [ ] **[P3-D3] Automated GitHub Push/Merge Cloud Build Trigger**
+  Establish automated continuous deployment by binding GitHub pushes to the `main` branch to execute `cloudbuild.yaml` seamlessly without requiring manual `gcloud builds submit` invocations.
+
+  Terraform Resource Block (infra/main.tf):
+  ```hcl
+  resource "google_cloudbuild_trigger" "github_main_trigger" {
+    name        = "deploy-on-main-merge"
+    description = "Automatically trigger Cloud Build on PR merge to main branch"
+    filename    = "cloudbuild.yaml"
+
+    github {
+      owner = "Works-by-Worrell"
+      name  = "warlock-agents"
+      push {
+        branch = "^main$"
+      }
+    }
+
+    substitutions = {
+      _TAG = "latest"
+    }
+
+    depends_on = [google_project_service.apis]
+  }
+  ```
+
 
 ---
 
