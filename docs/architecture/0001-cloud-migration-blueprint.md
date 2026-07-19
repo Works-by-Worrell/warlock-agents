@@ -477,7 +477,7 @@
 
 ## Phase 4: Network Transport, NoSQL Schema, & State Realignment
 
-- [ ] **[P4-N1] FastMCP Network Layer Transformation**
+- [x] **[P4-N1] FastMCP Network Layer Transformation**
   Transition the FastMCP runtime server out of standard input/output (stdio) pipelines into an asynchronous, network-exposed Streamable-HTTP ASGI daemon. Update python-app/src/worksbyworrell/warlock/main.py:
 
   Python Implementation:
@@ -498,7 +498,7 @@
       uvicorn.run("worksbyworrell.warlock.main:mcp.asgi_app", host=bind_host, port=bind_port, log_level="info")
   ```
 
-- [ ] **[P4-N2] Layered Security Document Architecture Design**
+- [x] **[P4-N2] Layered Security Document Architecture Design**
   Configure Firestore to separate public config profiles from private operational data. This prevents leaking keys while merging data in memory at runtime.
 
   Data Tier Topography:
@@ -512,7 +512,7 @@
       └── underlying_model_target: "gemini-1.5-pro"
   ```
 
-- [ ] **[P4-N3] Pythonic Functional Strategy Registry Fallback**
+- [x] **[P4-N3] Pythonic Functional Strategy Registry Fallback**
   Implement the storage strategy router inside python-app/src/worksbyworrell/warlock/storage/firestore_client.py. This checks for environment context to decide between live Firestore lookups or zero-dependency flat file fallback evaluations, enabling instant out-of-the-box project forkability without complex GoF boilerplate.
 
   Python Implementation:
