@@ -8,6 +8,7 @@ import httpx
 import yaml
 from google.cloud import firestore
 
+from worksbyworrell.warlock.core import PROJECT_ROOT
 from worksbyworrell.warlock.storage.firestore_client import save_document
 
 
@@ -141,24 +142,32 @@ def sync_agent_specs_to_firestore(
     )
     public_agents = []
 
-    if os.path.exists(public_dir):
-        for spec_file in sorted(glob.glob(os.path.join(public_dir, "*.md"))):
-            agent_id = os.path.splitext(os.path.basename(spec_file))[0]
-            data = parse_agent_markdown(spec_file)
-            data["agent_id"] = agent_id
-            public_agents.append(data)
+    if not os.path.isabs(public_dir) and not os.path.exists(public_dir):
+        alt_public = os.path.join(PROJECT_ROOT, public_dir)
+        if os.path.exists(alt_public):
+            public_dir = alt_public
 
-            if db:
-                save_document("agent_configurations", agent_id, data, client=db)
+    if not os.path.isabs(private_dir) and not os.path.exists(private_dir):
+        alt_private = os.path.join(PROJECT_ROOT, private_dir)
+        if os.path.exists(alt_private):
+            private_dir = alt_private
 
-    if os.path.exists(private_dir):
-        for spec_file in sorted(glob.glob(os.path.join(private_dir, "*.md"))):
-            agent_id = os.path.splitext(os.path.basename(spec_file))[0]
-            data = parse_agent_markdown(spec_file)
-            data["agent_id"] = agent_id
+    for spec_file in sorted(glob.glob(os.path.join(public_dir, "*.md"))):
+        agent_id = os.path.splitext(os.path.basename(spec_file))[0]
+        data = parse_agent_markdown(spec_file)
+        data["agent_id"] = agent_id
+        public_agents.append(data)
 
-            if db:
-                save_document("agent_overlays", agent_id, data, client=db)
+        if db:
+            save_document("agent_configurations", agent_id, data, client=db)
+
+    for spec_file in sorted(glob.glob(os.path.join(private_dir, "*.md"))):
+        agent_id = os.path.splitext(os.path.basename(spec_file))[0]
+        data = parse_agent_markdown(spec_file)
+        data["agent_id"] = agent_id
+
+        if db:
+            save_document("agent_overlays", agent_id, data, client=db)
 
     os.makedirs(output_dir, exist_ok=True)
     cache_path = os.path.join(output_dir, "agents.json")
