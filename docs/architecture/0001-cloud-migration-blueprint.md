@@ -573,7 +573,7 @@
 
 ## Phase 5: Routing, Domain Handshaking, and Automation
 
-- [ ] **[P5-A1] GitHub Milestone & Ingestion Pipeline Synchronization Script**
+- [x] **[P5-A1] GitHub Milestone & Ingestion Pipeline Synchronization Script**
   Deploy a synchronization script inside `python-app/scripts/seed_github_data.py` (or module `worksbyworrell.warlock.sync`) to ingest tracking milestones from GitHub REST API (`state=all`) and parse local agent Markdown specs (`.public/agents/*.md` and `.private/agents/*.md`) into Cloud Firestore collections (`portfolio_milestones`, `agent_configurations`, and `agent_overlays`).
   * **Markdown Tokenization:** Parses YAML frontmatter (`name`, `description`, `model`, `tools`) and stores the markdown body as `system_prompt` in Firestore documents without requiring manual JSON conversion.
   * **Hybrid Ingestion Pipeline:** Public milestones and `.public/agents/` are synced via an automated, $0-cost GitHub Actions workflow (`.github/workflows/sync_milestones.yaml`). Private overlays in `.private/agents/` are synced via local developer CLI (`--private` flag with `gcloud auth`) or private GCS bucket EventArc triggers.
@@ -689,6 +689,7 @@
 >   * Milestone 2 (`Phase 2: Declarative Cloud Footprint`): 5 closed issues (100% complete).
 >   * Milestone 3 (`Phase 3: Containerization & CI/CD`): 2 closed issues (100% complete).
 >   * Milestone 4 (`Phase 4: FastMCP Transport & Security`): 3 closed issues (100% complete).
->   * Milestone 5 (`Phase 5: Routing, Ingress & Automation`): 1 closed (`#38`), 3 open (`#35`, `#36`, `#37`) (25% complete).
-> * **GitOps & Hybrid Agent Ingestion:** Designed `.public/agents/*.md` YAML frontmatter auto-tokenization into Firestore `agent_configurations` and `.private/agents/*.md` into `agent_overlays`. Preserves open-source repository forkability while protecting private overlays via local developer CLI execution (`--private`) or GCS EventArc triggers.
+>   * Milestone 5 (`Phase 5: Routing, Ingress & Automation`): 2 closed (`#35`, `#38`), 2 open (`#36`, `#37`) (50% complete).
+> * **GitOps & Hybrid Agent Ingestion (`P5-A1`):** Completed implementation of ingestion pipeline module `worksbyworrell.warlock.sync` with dynamic zero-hardcoding repository resolution (`get_target_repository`), frontmatter tokenization, Firestore DAO `save_document` helper in `firestore_client.py`, and dual static cache generation (`milestones.json`, `agents.json`). Created entrypoint `seed_github_data.py` and GitHub Actions workflow `.github/workflows/sync_milestones.yaml`. Verified 100% passing across 16 Yellowstone unit tests in `test_sync.py` and `test_storage.py` (Issue #35).
 > * **$0-Cost Budget Audit:** Confirmed 100% $0.00 operation via unlimited public GitHub Actions Linux minutes and GCP Free Tier allowances (20k Firestore writes/day, 2M Cloud Run calls/month, AR retention capping at ~216MB).
+
