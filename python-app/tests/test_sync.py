@@ -8,6 +8,7 @@ from worksbyworrell.warlock.sync import (
     get_target_repository,
     parse_agent_markdown,
     sync_agent_specs_to_firestore,
+    sync_all,
     sync_github_milestones_to_firestore,
 )
 
@@ -234,3 +235,32 @@ def test_sync_agent_specs_to_firestore_and_cache(monkeypatch, mock_firestore_cli
     # Verify Firestore collection calls
     mock_firestore_client.collection.assert_any_call("agent_configurations")
     mock_firestore_client.collection.assert_any_call("agent_overlays")
+
+
+def test_sync_all_orchestrates_both_pipelines(mocker):
+    """
+    Verify sync_all orchestrates milestone sync and agent spec sync with custom params.
+    """
+    mock_milestones_sync = mocker.patch(
+        "worksbyworrell.warlock.sync.sync_github_milestones_to_firestore"
+    )
+    mock_agent_sync = mocker.patch(
+        "worksbyworrell.warlock.sync.sync_agent_specs_to_firestore"
+    )
+
+    sync_all(
+        repo="Works-by-Worrell/warlock-agents",
+        token="dummy-token",
+        public_dir="/tmp/public",
+        private_dir="/tmp/private",
+        output_dir="/tmp/test"
+    )
+
+    mock_milestones_sync.assert_called_once_with(
+        repo="Works-by-Worrell/warlock-agents", token="dummy-token", output_dir="/tmp/test"
+    )
+    mock_agent_sync.assert_called_once_with(
+        public_dir="/tmp/public", private_dir="/tmp/private", output_dir="/tmp/test"
+    )
+
+
