@@ -1,4 +1,3 @@
-import pytest
 
 
 def test_base_agent_initialization():

@@ -63,3 +63,12 @@ def serialize_agent_config(agent_id: str) -> str:
             markdown_output += f"* **`{key}`**: `{value}`\n"
 
     return markdown_output
+
+
+def save_document(collection_name: str, doc_id: str, data: dict, client=None) -> None:
+    """
+    Persist or overwrite a document payload in the specified Firestore collection.
+    """
+    if client is None:
+        client = firestore.Client()
+    client.collection(collection_name).document(str(doc_id)).set(data)
