@@ -136,3 +136,15 @@ resource "google_secret_manager_secret_iam_member" "github_token_accessor" {
 
   depends_on = [google_project_service.apis]
 }
+
+resource "google_service_account" "github_firestore_sync" {
+  account_id   = "github-firestore-sync"
+  display_name = "GitHub Firestore Sync SA"
+  description  = "Service Account for GitHub Actions Firestore sync pipeline"
+}
+
+resource "google_project_iam_member" "firestore_user_sync" {
+  project = var.project_id
+  role    = "roles/datastore.user"
+  member  = "serviceAccount:${google_service_account.github_firestore_sync.email}"
+}
