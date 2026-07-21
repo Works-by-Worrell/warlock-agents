@@ -563,43 +563,78 @@
       return markdown_output
   ```
 
+> **Phase 4 Implementation & Deployment Session Notes:**
+> * **FastMCP Streamable-HTTP ASGI Transport (`P4-N1`):** Configured Uvicorn ASGI daemon binding on `0.0.0.0:${PORT:-8080}` in `main.py` with `FASTMCP_TRANSPORT=streamable-http`.
+> * **Dual-Collection Firestore Security Schema (`P4-N2`):** Implemented in-memory dictionary merging (`{**public, **private}`) across `agent_configurations` and `agent_overlays` collections in `_load_from_firestore`.
+> * **Strategy Router & Secret Redaction (`P4-N3`):** Built `get_agent_config` environment router (`GCP_PROJECT_ID`) with zero-dependency local JSON fallback, and exposed `@mcp.resource("warlock://config/{agent_id}")` with sensitive key masking (`[ENCRYPTED/RESTRICTED_BOUNDARIES]`).
+> * **Yellowstone Test Suite & Cloud Verification:** Added 6 isolated pytest cases in `tests/test_storage.py` (100% passing). Verified live Cloud Run deployment (`warlock-agents-core`) with OIDC token-authenticated FastMCP SSE protocol handshakes.
+
 ---
 
 ## Phase 5: Routing, Domain Handshaking, and Automation
 
-- [ ] **[P5-A1] GitHub Milestone & Issue Pipeline Synchronization Script**
-  Deploy a synchronization script inside the `scripts/` directory to pull tracking milestones from the public GitHub Organization repo and store them in Cloud Firestore. This provides real-time data backends for the portfolio page.
+- [ ] **[P5-A1] GitHub Milestone & Ingestion Pipeline Synchronization Script**
+  Deploy a synchronization script inside `python-app/scripts/seed_github_data.py` (or module `worksbyworrell.warlock.sync`) to ingest tracking milestones from GitHub REST API (`state=all`) and parse local agent Markdown specs (`.public/agents/*.md` and `.private/agents/*.md`) into Cloud Firestore collections (`portfolio_milestones`, `agent_configurations`, and `agent_overlays`).
+  * **Markdown Tokenization:** Parses YAML frontmatter (`name`, `description`, `model`, `tools`) and stores the markdown body as `system_prompt` in Firestore documents without requiring manual JSON conversion.
+  * **Hybrid Ingestion Pipeline:** Public milestones and `.public/agents/` are synced via an automated, $0-cost GitHub Actions workflow (`.github/workflows/sync_milestones.yaml`). Private overlays in `.private/agents/` are synced via local developer CLI (`--private` flag with `gcloud auth`) or private GCS bucket EventArc triggers.
+  * **Frontend Delivery:** Exposes static `./milestones.json` and `./agents.json` for GitHub Pages (`worksbyworrell.com`) to serve with 0ms latency and $0 CORS complexity, backed by dynamic Cloud Run API lookups (`https://warlock.worksbyworrell.com/api/portfolio`).
 
   Python Implementation:
   ```python
   import os
-  from github import Github
+  import datetime
+  import httpx
+  import yaml
   from google.cloud import firestore
-  
-  def sync_github_milestones_to_firestore():
-    gh_token = os.environ.get("GITHUB_TOKEN")
-    repo_path = "Works-by-Worrell/flag-ship"
-    
-    gh = Github(gh_token)
-    db = firestore.Client()
-    repo = gh.get_repo(repo_path)
-    
-    print(f"Opening synchronization pipelines for {repo_path}...")
-    milestones = repo.get_milestones(state="all")
-      for ms in milestones:
-        payload = {
-            "title": ms.title,
-            "description": ms.description,
-            "open_issues": ms.open_issues,
-            "closed_issues": ms.closed_issues,
-            "state": ms.state,
-            "updated_at": ms.updated_at.isoformat() if ms.updated_at else None
-        }
-        db.collection("portfolio_milestones").document(str(ms.id)).set(payload)
-        print(f"Successfully synced target milestone: {ms.title}")
-  
+
+  DEFAULT_REPO = "Works-by-Worrell/warlock-agents"
+
+  def fetch_github_milestones(repo: str = DEFAULT_REPO, token: str | None = None) -> list[dict]:
+      url = f"https://api.github.com/repos/{repo}/milestones?state=all"
+      headers = {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"}
+      if token:
+          headers["Authorization"] = f"Bearer {token}"
+      with httpx.Client(timeout=10.0) as client:
+          resp = client.get(url, headers=headers)
+          resp.raise_for_status()
+          return resp.json()
+
+  def parse_agent_markdown(file_path: str) -> dict:
+      with open(file_path, "r", encoding="utf-8") as f:
+          content = f.read()
+      if content.startswith("---"):
+          parts = content.split("---", 2)
+          frontmatter = yaml.safe_load(parts[1]) if len(parts) >= 3 else {}
+          body = parts[2].strip() if len(parts) >= 3 else ""
+          return {**frontmatter, "system_prompt": body}
+      return {"system_prompt": content}
+
+  def sync_github_milestones_to_firestore(repo: str = DEFAULT_REPO):
+      token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+      raw_milestones = fetch_github_milestones(repo, token)
+      db = firestore.Client() if os.environ.get("GCP_PROJECT_ID") else None
+      
+      for ms in raw_milestones:
+          total = ms.get("open_issues", 0) + ms.get("closed_issues", 0)
+          progress = round((ms.get("closed_issues", 0) / total * 100), 2) if total > 0 else 0.0
+          payload = {
+              "milestone_id": ms["number"],
+              "title": ms["title"],
+              "description": ms.get("description") or "",
+              "state": ms["state"],
+              "open_issues": ms.get("open_issues", 0),
+              "closed_issues": ms.get("closed_issues", 0),
+              "progress_percentage": progress,
+              "github_url": ms["html_url"],
+              "updated_at": ms.get("updated_at"),
+              "synced_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
+          }
+          if db:
+              db.collection("portfolio_milestones").document(str(ms["number"])).set(payload)
+          print(f"Synced milestone #{ms['number']}: {ms['title']} ({progress}%)")
+
   if __name__ == "__main__":
-    sync_github_milestones_to_firestore()
+      sync_github_milestones_to_firestore()
   ```
 
 - [ ] **[P5-A2] Squarespace Custom Subdomain Ingress Architecture**
@@ -630,7 +665,7 @@
     -H "Content-Type: application/json"
   ```
 
-- [ ] **[P5-A4] Squarespace: Forward Primary Domain to GitHub Pages Organization Site**
+- [x] **[P5-A4] Squarespace: Forward Primary Domain to GitHub Pages Organization Site**
   Route the root `worksbyworrell.com` domain from Squarespace to the GitHub Pages organization site established in P1-G3.
   1. Log in to your Squarespace account and navigate to **Settings → Domains → worksbyworrell.com → Advanced DNS Settings**.
   2. Add a CNAME record pointing the `www` subdomain to the GitHub Pages org site:
@@ -646,3 +681,14 @@
      ```
   4. In the `Works-by-Worrell.github.io` repository settings under **Pages**, set the **Custom domain** field to `worksbyworrell.com` and enable **Enforce HTTPS**.
   5. Verify propagation (allow up to 24 hours) by navigating to `https://worksbyworrell.com`.
+
+> **Phase 5 Design & Architectural Decision Notes:**
+> * **Career Benchmark Alignment:** Standardized architectural guidance and expectations to **Senior Software Engineer (SSE)** (target promotion level for Roger, currently SE2 at ORLY). At enterprise scale (ORLY), Principal is the immediate step above Senior.
+> * **GitHub Milestones Provisioning & Backfilling:** Created 5 Phase Milestones on GitHub repository `Works-by-Worrell/warlock-agents` via `gh api`. Linked all 22 existing issues (`#17` through `#38`) to their corresponding Phase Milestones:
+>   * Milestone 1 (`Phase 1: Workspace Strategy & Git Hygiene`): 8 closed issues (100% complete).
+>   * Milestone 2 (`Phase 2: Declarative Cloud Footprint`): 5 closed issues (100% complete).
+>   * Milestone 3 (`Phase 3: Containerization & CI/CD`): 2 closed issues (100% complete).
+>   * Milestone 4 (`Phase 4: FastMCP Transport & Security`): 3 closed issues (100% complete).
+>   * Milestone 5 (`Phase 5: Routing, Ingress & Automation`): 1 closed (`#38`), 3 open (`#35`, `#36`, `#37`) (25% complete).
+> * **GitOps & Hybrid Agent Ingestion:** Designed `.public/agents/*.md` YAML frontmatter auto-tokenization into Firestore `agent_configurations` and `.private/agents/*.md` into `agent_overlays`. Preserves open-source repository forkability while protecting private overlays via local developer CLI execution (`--private`) or GCS EventArc triggers.
+> * **$0-Cost Budget Audit:** Confirmed 100% $0.00 operation via unlimited public GitHub Actions Linux minutes and GCP Free Tier allowances (20k Firestore writes/day, 2M Cloud Run calls/month, AR retention capping at ~216MB).
