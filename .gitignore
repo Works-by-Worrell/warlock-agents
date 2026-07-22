@@ -3,6 +3,10 @@
 !.private/**/
 !.private/**/README.md
 
+# Ignore sync output JSON
+python-app/agents.json
+python-app/milestones.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -238,3 +242,6 @@ override.tf.json
 .terraformrc
 terraform.rc
 tfplan
+infra/sa-key.json
+
+

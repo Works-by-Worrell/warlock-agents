@@ -637,7 +637,7 @@
       sync_github_milestones_to_firestore()
   ```
 
-- [ ] **[P5-A2] Squarespace Custom Subdomain Ingress Architecture**
+- [x] **[P5-A2] Squarespace Custom Subdomain Ingress Architecture**
   Map public HTTP traffic from your custom subdomain to your managed Cloud Run instance.
   1. Open the Google Cloud Console and navigate to Cloud Run -> Manage Custom Domains.
   2. Click Add Mapping, choose warlock-agents-core, and set the domain field exactly to warlock.worksbyworrell.com.
@@ -689,7 +689,9 @@
 >   * Milestone 2 (`Phase 2: Declarative Cloud Footprint`): 5 closed issues (100% complete).
 >   * Milestone 3 (`Phase 3: Containerization & CI/CD`): 2 closed issues (100% complete).
 >   * Milestone 4 (`Phase 4: FastMCP Transport & Security`): 3 closed issues (100% complete).
->   * Milestone 5 (`Phase 5: Routing, Ingress & Automation`): 2 closed (`#35`, `#38`), 2 open (`#36`, `#37`) (50% complete).
-> * **GitOps & Hybrid Agent Ingestion (`P5-A1`):** Completed implementation of ingestion pipeline module `worksbyworrell.warlock.sync` with dynamic zero-hardcoding repository resolution (`get_target_repository`), frontmatter tokenization, Firestore DAO `save_document` helper in `firestore_client.py`, and dual static cache generation (`milestones.json`, `agents.json`). Created entrypoint `seed_github_data.py` and GitHub Actions workflow `.github/workflows/sync_milestones.yaml`. Verified 100% passing across 16 Yellowstone unit tests in `test_sync.py` and `test_storage.py` (Issue #35).
+>   * Milestone 5 (`Phase 5: Routing, Ingress & Automation`): 3 closed (`#35`, `#36`, `#38`), 1 open (`#37`) (75% complete).
+> * **GitOps & Hybrid Agent Ingestion (`P5-A1`):** Fully implemented end-to-end ingestion pipeline module `worksbyworrell.warlock.sync` with dynamic zero-hardcoding repository resolution (`get_target_repository`), frontmatter tokenization, Firestore DAO `save_document` helper in `firestore_client.py`, and dual static cache generation (`milestones.json`, `agents.json`). Created entrypoint `seed_github_data.py`, declared `github-firestore-sync` Service Account in `infra/main.tf`, and configured `google-github-actions/auth@v2` in `.github/workflows/sync_milestones.yaml`. Verified 100% passing across 16 Yellowstone unit tests in `test_sync.py` and `test_storage.py` and confirmed live end-to-end green deployment populating Firestore collections `portfolio_milestones` and `agent_configurations` in GCP project `worksbyworrell-nprd` (Issue #35).
+> * **Squarespace Custom Subdomain Ingress (`P5-A2`):** Mapped custom subdomain `warlock.worksbyworrell.com` to managed Cloud Run service `warlock-agents-core` via GCP Domain Mapping (`gcloud beta run domain-mappings create`). Verified root domain ownership (`worksbyworrell.com`) in Google Search Console using TXT record (`google-site-verification=-VfswMRR89nOn12KfYWkjSVIG2J1Hd8RpQtPserwPuU`) and configured Squarespace DNS CNAME (`warlock` -> `ghs.googlehosted.com.`). Successfully provisioned automated managed TLS/SSL certificates (`CertificateProvisioned: True`, `Ready: True`) with HTTPS redirection enforced by Google Frontend (Issue #36).
 > * **$0-Cost Budget Audit:** Confirmed 100% $0.00 operation via unlimited public GitHub Actions Linux minutes and GCP Free Tier allowances (20k Firestore writes/day, 2M Cloud Run calls/month, AR retention capping at ~216MB).
+
 
